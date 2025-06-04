@@ -4,8 +4,9 @@
 **Student Name:** 苏雪清  
 **Student ID:** 22307130420  
 **Date:** June 4, 2025  
-**GitHub Link:** [待填写]  
-**Dataset & Model Link:** [待填写]  
+**GitHub Link:** [https://github.com/Snowie1027/NN-pj2/tree/main]  
+**Dataset & Model Link:** [https://drive.google.com/drive/folders/1BBkB2-sAIg1sTpFhIfn8ujWXaF13gzCr?usp=sharing]
+]  
 
 ---
 
