@@ -179,6 +179,29 @@ def plot_loss_landscape(min_curve, max_curve):
 
 os.makedirs(figures_path, exist_ok=True)
 
+def plot_all_loss_landscapes(loss_curves, save_path):
+    steps = np.arange(len(next(iter(loss_curves.values()))['min']))
+    plt.figure(figsize=(14, 7))
+
+    colors = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3']  # 给前几个模型定义颜色
+    for i, (model_name, curves) in enumerate(loss_curves.items()):
+        color = colors[i % len(colors)]
+        min_curve = curves['min']
+        max_curve = curves['max']
+        
+        plt.plot(steps, max_curve, label=f'{model_name} Max Loss', linestyle='--', color=color)
+        plt.plot(steps, min_curve, label=f'{model_name} Min Loss', linestyle='-', color=color)
+        plt.fill_between(steps, min_curve, max_curve, alpha=0.2, color=color)
+
+    plt.xlabel('Step', fontsize=12)
+    plt.ylabel('Loss', fontsize=12)
+    plt.title('Loss Landscape Comparison', fontsize=14, fontweight='bold')
+    plt.legend(fontsize=10)
+    plt.grid(True, linestyle='--', alpha=0.5)
+    print(f"Saving combined loss landscape to {save_path}")
+    plt.savefig(save_path, dpi=300)
+    plt.close()
+
 if __name__ == '__main__':
     import os
     import matplotlib.pyplot as plt
@@ -209,6 +232,8 @@ if __name__ == '__main__':
 
     learning_rates = [1e-3, 5e-4, 1e-4]
     epochs = 30
+    
+    loss_curves = {}
 
     # 对所有模型做对比
     for model_name, model_class in models_to_compare.items():
@@ -226,7 +251,8 @@ if __name__ == '__main__':
 
             loss, grads, train_accs, test_accs = train(model, optimizer, criterion, train_loader, val_loader, epochs_n=epochs)
 
-            all_losses.append([np.mean(epoch_loss) for epoch_loss in loss])
+            # all_losses.append([np.mean(epoch_loss) for epoch_loss in loss])
+            all_losses.append(loss)
             all_train_accs.append(train_accs)
             all_test_accs.append(test_accs)
 
@@ -268,6 +294,9 @@ if __name__ == '__main__':
         max_curve = np.max(all_losses, axis=0).flatten()
         min_curve = np.min(all_losses, axis=0).flatten()
 
+        # 存储到字典中
+        loss_curves[model_name] = {'min': min_curve, 'max': max_curve}
+
         # 绘图函数，支持传入文件名和标题
         def plot_loss_landscape(min_curve, max_curve, model_name):
             steps = np.arange(len(min_curve))
@@ -287,6 +316,9 @@ if __name__ == '__main__':
 
         # 绘制当前模型的 loss landscape
         plot_loss_landscape(min_curve, max_curve, model_name)
+    
+    plot_all_loss_landscapes(loss_curves, os.path.join(figures_path, 'combined_loss_landscape.png'))
+
 
     # 所有模型 loss 对比图
     plt.figure(figsize=(12, 6))
